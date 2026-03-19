@@ -25,6 +25,13 @@ jobs:
           VERSION="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Version"])')"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Detected version: $VERSION"
+          
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.version }}
+          name: ${{ steps.meta.outputs.version }}
+          draft: true
 
   build:
     name: Build R package on ${{ matrix.config.os }}
