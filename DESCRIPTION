@@ -2,13 +2,15 @@ Package: SimpleITK
 Version: 2.5.3
 Date: 2025-11-20
 Title: SimpleITK: A Simplified Interface to the Insight Toolkit
-Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
+Authors@R: c(person("Artür", "Manukyan", role = c("aut", "cre"),
+                      email = "artur-man@hotmail.com"),
+             person("Richard", "Beare", role = c("aut"),
                       email = "Richard.Beare@ieee.org"),
                    person("Bradley", "Lowekamp", role = "aut",
                      email = "blowekamp@mail.nih.gov"),
 		     person("Ziv", "Yaniv", role="aut",
 		     email = "zivyaniv@nih.gov"))
-Author: Richard Beare, Bradley Lowekamp, Ziv Yaniv plus loads of others
+Author: Artür Manukyan, Richard Beare, Bradley Lowekamp, Ziv Yaniv plus loads of others
 Depends: R (>= 4.5)
 Imports: methods,
          desc
