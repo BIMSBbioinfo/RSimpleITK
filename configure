@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# configure script that will fetch and build SimpleITK, then move the results
+# to somewhere that R can install. It takes a long time and uses
+# a substantial amount of disk space
+#
+# Requires git and cmake
+#
+export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
+export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
+
+export PKGBASED=$(pwd)
+echo ${PKGBASED}
+
+## make sure we've got the correct R
+[ -z "$R_HOME" ] &&  echo "Environment variable \"R_HOME\" is not set!" && exit 1
+RCALL="${R_HOME}/bin/R"
+export RCALL
+
+CC="$(${RCALL} CMD config CC)"
+CXX="$(${RCALL} CMD config CXX)"
+CFLAGS="$(${RCALL} CMD config CFLAGS)"
+CXXFLAGS="$(${RCALL} CMD config CXX11FLAGS)"
+CPPFLAGS="$(${RCALL} CMD config CPPFLAGS)"
+export CXX
+export CC
+export CXXFLAGS
+export CPPFLAGS
+export CFLAGS
+
+## Level of parallel build
+## Don't use the Ncpus option for install.packages because it
+## refers to multiple packages
+if [ -z "${MAKEJ}" ] ; then
+    MAKEJ=1
+    export MAKEJ
+fi
+
+## All the building is going to happen in an SITK folder
+mkdir -p SITK
+(
+    cd SITK &&
+    [ -d SimpleITK ] ||
+      ( git clone  ${SimpleITKGit} &&
+          cd SimpleITK &&
+          git checkout  ${SITKTAG} ) || exit 1
+
+    SITK_SRC=$(pwd)/SimpleITK
+
+    mkdir -p Build &&
+        cd Build &&
+        cmake \
+        -DWRAP_DEFAULT=OFF\
+        -DWRAP_R=ON \
+        -DSimpleITK_BUILD_DISTRIBUTE=ON \
+        -DBUILD_EXAMPLES=OFF \
+        -DBUILD_TESTING=OFF \
+        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DITK_USE_BUILD_DIR:BOOL=ON \
+        ${ADDITIONAL_SITK_MODULES} \
+        ${SITK_SRC}/SuperBuild/ ||
+    exit 1
+
+    echo "Parallel build using -j${MAKEJ}"
+    make -j${MAKEJ} SimpleITK-build && \
+        rm -rf ITK-build &&
+    # Use R to do the move to avoid system specific issues.
+    ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
+    exit 1
+) || exit 1
