@@ -133,5 +133,4 @@ workflows:
           filters:
             branches:
               only:
-                - release
-                - /pull\/.*/  # Run on all pull request branches
+                - main
