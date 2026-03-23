@@ -83,11 +83,11 @@ mkdir -p ../Build
 cd ../Build
 echo "Current directory: $PWD"
 
-# -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
 # Configure with Unix Makefiles (Rtools toolchain)
 cmake -G "Unix Makefiles" \
   -DWRAP_DEFAULT=OFF \
   -DWRAP_R=ON \
+  -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
   -DSimpleITK_BUILD_DISTRIBUTE=ON \
   -DBUILD_EXAMPLES=OFF \
   -DBUILD_TESTING=OFF \
